@@ -121,7 +121,6 @@ if st.session_state.analyse_lancee:
                 # Rectangle jaune pour délimiter la parcelle
                 folium.Rectangle(bounds=[[lat_down, lon_left], [lat_up, lon_right]], color='#FFD600', weight=2.5, fill=False).add_to(m)
                 
-                # CORRECTION ICI : Ajout de la "key" pour forcer la mise à jour visuelle des couches
                 st_folium(m, width=900, height=450, returned_objects=[], key=f"carte_{mode_carte}")
 
         # --- PARTIE 2 : LE GRAPHIQUE HISTORIQUE ---
@@ -132,6 +131,9 @@ if st.session_state.analyse_lancee:
         if raw_data:
             df = pd.DataFrame([f['properties'] for f in raw_data]).dropna()
             df['Date'] = pd.to_datetime(df['t'], unit='ms')
+            
+            # --- CORRECTION ICI : Tri des dates pour éviter les zigzags ---
+            df = df.sort_values(by='Date')
             
             fig = px.line(df, x='Date', y=['v', 'e'], labels={'value': 'Indice', 'variable': 'Indicateur'},
                           color_discrete_map={'v': '#2e7d32', 'e': '#0277bd'})
